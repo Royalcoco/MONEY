@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract FileHashRegistry {
+    bytes32 public fileHash;
+
+    function setFileHash(bytes32 _fileHash) public {
+        fileHash = _fileHash;
+    }
+
+    function verifyFileHash(bytes32 _fileHash) public view returns (bool) {
+        return fileHash == _fileHash;
+    }
+}
