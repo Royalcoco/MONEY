@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DALL-E NFT Creator</title>
+    <script src="popup.js"></script>
+</head>
+<body>
+    <h1>DALL-E NFT Creator</h1>
+    <input type="text" id="prompt" placeholder="Enter prompt">
+    <button id="generate">Generate Image</button>
+    <div id="imageContainer"></div>
+    <button id="mintNFT">Mint as NFT</button>
+</body>
+</html>
