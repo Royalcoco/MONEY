@@ -1,0 +1,63 @@
+pip install web3
+
+import json
+import hashlib
+from web3 import Web3
+
+# Connect to Ethereum
+w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
+
+# Adresse du contrat et ABI (interface binaire d'application)
+contract_address = 'YOUR_CONTRACT_ADDRESS'
+contract_abi = '''
+[
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "_fileHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "setFileHash",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "_fileHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "verifyFileHash",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]
+'''
+
+contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
+# Calculer le hash du fichier
+with open('points.json', 'rb') as f:
+    file_data = f.read()
+    file_hash = hashlib.sha256(file_data).hexdigest()
+
+# Convertir le hash en bytes32
+file_hash_bytes32 = w3.toBytes(hexstr=file_hash)
+
+# Vérifier le hash sur Ethereum
+def verify_hash():
+    return contract.functions.verifyFileHash(file_hash_bytes32).call()
+
+print("Hash verification result:", verify_hash())
