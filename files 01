@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract PointsToFunds {
+    address public owner;
+    bytes32 public fileHash;
+    uint256 public funds;
+    mapping(address => uint256) public balances;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
+    function setFileHash(bytes32 _fileHash) public onlyOwner {
+        fileHash = _fileHash;
+    }
+
+    function verifyFileHash(bytes32 _fileHash) public view returns (bool) {
+        return fileHash == _fileHash;
+    }
+
+    function depositFunds() public payable {
+        require(msg.value > 0, "Must send ETH to deposit");
+        balances[msg.sender] += msg.value;
+        funds += msg.value;
+    }
+
+    function withdrawFunds(uint256 amount) public {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        require(funds >= amount, "Insufficient funds in contract");
+
+        balances[msg.sender] -= amount;
+        funds -= amount;
+        payable(msg.sender).transfer(amount);
+    }
+
+    function getBalance() public view returns (uint256) {
+        return balances[msg.sender];
+    }
+
+    function getTotalFunds() public view returns (uint256) {
+        return funds;
+    }
+}
