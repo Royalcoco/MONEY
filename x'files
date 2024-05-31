@@ -1,0 +1,9 @@
+import random
+import json
+
+# Générer un fichier de 3 millions de points
+points = [{"x": random.uniform(0, 100), "y": random.uniform(0, 100), "z": random.uniform(0, 100)} for _ in range(3000000)]
+
+# Sauvegarder les points dans un fichier
+with open('points.json', 'w') as f:
+    json.dump(points, f)
