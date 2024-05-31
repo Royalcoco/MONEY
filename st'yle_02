@@ -1,0 +1,38 @@
+from web3 import Web3
+
+# Connexion à Ethereum
+w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
+
+# Adresse du contrat et ABI (interface binaire d'application)
+contract_address = 'YOUR_CONTRACT_ADDRESS'
+contract_abi = '''
+[
+    {
+        "inputs": [],
+        "name": "mintBook",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
+'''
+
+contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
+# Fonction pour minter le livre en tant que NFT
+def mint_book():
+    nonce = w3.eth.getTransactionCount('YOUR_WALLET_ADDRESS')
+    tx = contract.functions.mintBook('RECIPIENT_WALLET_ADDRESS').buildTransaction({
+        'chainId': 1,
+        'gas': 2000000,
+        'gasPrice': w3.toWei('50', 'gwei'),
+        'nonce': nonce,
+    })
+    
+    private_key = 'YOUR_PRIVATE_KEY'
+    signed_tx = w3.eth.account.signTransaction(tx, private_key)
+    tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    print(f"Minting transaction hash: {tx_hash.hex()}")
+
+# Minter le livre
+mint_book()
