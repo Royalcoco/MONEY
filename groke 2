@@ -1,0 +1,33 @@
+// background.js
+chrome.runtime.onInstalled.addListener(() => {
+    console.log('Extension Installed');
+});
+
+// popup.js
+document.getElementById('generate').addEventListener('click', () => {
+    const prompt = document.getElementById('prompt').value;
+    fetch(`http://localhost:5000/generate-image?prompt=${encodeURIComponent(prompt)}`)
+        .then(response => response.json())
+        .then(data => {
+            const img = document.createElement('img');
+            img.src = data.image_url;
+            img.id = "generatedImage";
+            document.getElementById('imageContainer').innerHTML = '';
+            document.getElementById('imageContainer').appendChild(img);
+        });
+});
+
+document.getElementById('mintNFT').addEventListener('click', () => {
+    const imgSrc = document.getElementById('generatedImage').src;
+    fetch('http://localhost:5000/mint-nft', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image_url: imgSrc })
+    })
+        .then(response => response.json())
+        .then(data => {
+            alert(`NFT minted! Transaction Hash: ${data.tx_hash}`);
+        });
+});
