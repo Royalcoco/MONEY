@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Point to Currency Converter</title>
+    <script src="popup.js"></script>
+</head>
+<body>
+    <h1>Point to Currency Converter</h1>
+    <input type="number" id="points" placeholder="Enter points to deposit">
+    <button id="deposit">Deposit Points</button>
+    <div id="balance"></div>
+    <input type="number" id="withdrawAmount" placeholder="Enter amount to withdraw">
+    <button id="withdraw">Withdraw Funds</button>
+</body>
+</html>
