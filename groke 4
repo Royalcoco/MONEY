@@ -1,0 +1,50 @@
+pip install Flask web3 openai
+
+from flask import Flask, request, jsonify
+from dalle import Dalle
+from web3 import Web3
+import openai
+
+app = Flask(__name__)
+
+dalle = Dalle(api_key='YOUR_DALLE_API_KEY')
+w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
+
+@app.route('/generate-image', methods=['GET'])
+def generate_image():
+    prompt = request.args.get('prompt')
+    image_url = dalle.generate_image(prompt)
+    return jsonify({'image_url': image_url})
+
+@app.route('/mint-nft', methods=['POST'])
+def mint_nft():
+    data = request.get_json()
+    image_url = data['image_url']
+    tx_hash = mint_image_as_nft(image_url)
+    return jsonify({'tx_hash': tx_hash})
+
+def mint_image_as_nft(image_url):
+    # Function to mint NFT on Ethereum
+    tx = {
+        'to': 'RECEIVER_ADDRESS',
+        'value': w3.toWei(0.01, 'ether'),
+        'gas': 2000000,
+        'gasPrice': w3.toWei('50', 'gwei'),
+        'nonce': w3.eth.getTransactionCount('YOUR_WALLET_ADDRESS'),
+        'chainId': 1
+    }
+
+    signed_tx = w3.eth.account.sign_transaction(tx, private_key='YOUR_PRIVATE_KEY')
+    tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    return tx_hash.hex()
+
+if __name__ == '__main__':
+    app.run(port=5000)
+
+class Dalle:
+    def __init__(self, api_key):
+        openai.api_key = api_key
+
+    def generate_image(self, prompt):
+        response = openai.Image.create(prompt=prompt, n=1, size="1024x1024")
+        return response['data'][0]['url']
