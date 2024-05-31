@@ -1,0 +1,19 @@
+import random
+import json
+import nltk
+from nltk.corpus import words
+
+# Assurez-vous de télécharger le corpus de mots nltk si ce n'est pas déjà fait
+nltk.download('words')
+
+# Générer un texte aléatoire
+word_list = words.words()
+text_length = 100000  # Nombre de mots dans le livre
+
+book_content = " ".join(random.choices(word_list, k=text_length))
+
+# Sauvegarder le texte dans un fichier
+with open('book.txt', 'w') as f:
+    f.write(book_content)
+
+print("Livre généré.")
