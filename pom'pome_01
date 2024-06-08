@@ -1,0 +1,275 @@
+pip install web3
+
+from web3 import Web3
+import json
+
+# Connexion à un nœud Ethereum (utilisez votre propre fournisseur ou un fournisseur comme Infura)
+w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
+
+# Adresse du contrat déployé et ABI
+contract_address = '0xYourContractAddress'
+contract_abi = json.loads('''
+[
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Transfer",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Approval",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "transfer",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "transferFrom",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "allowance",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]
+''')
+
+contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
+# Fonction pour créer un nouveau portefeuille
+def create_wallet():
+    account = w3.eth.account.create()
+    return account.address, account.privateKey.hex()
+
+# Fonction pour consulter le solde d'un portefeuille
+def get_balance(address):
+    balance = contract.functions.balanceOf(address).call()
+    return w3.fromWei(balance, 'ether')
+
+# Fonction pour transférer des points
+def transfer_points(private_key, to_address, amount):
+    account = w3.eth.account.privateKeyToAccount(private_key)
+    nonce = w3.eth.getTransactionCount(account.address)
+    tx = contract.functions.transfer(to_address, w3.toWei(amount, 'ether')).buildTransaction({
+        'chainId': 1, # Mainnet
+        'gas': 2000000,
+        'gasPrice': w3.toWei('50', 'gwei'),
+        'nonce': nonce,
+    })
+    signed_tx = w3.eth.account.signTransaction(tx, private_key)
+    tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    return tx_hash.hex()
+
+# Exemple d'utilisation
+if __name__ == "__main__":
+    address, private_key = create_wallet()
+    print("Nouvelle adresse de portefeuille:", address)
+    print("Clé privée (à sauvegarder en lieu sûr):", private_key)
+    
+    balance = get_balance(address)
+    print("Solde initial:", balance, "PTC")
+    
+    # Transfert de 100 PTC à une autre adresse (remplacez '0xReceiverAddress' par une adresse valide)
+    tx_hash = transfer_points(private_key, '0xReceiverAddress', 100)
+    print("Transaction hash:", tx_hash)
