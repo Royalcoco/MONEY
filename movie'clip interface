@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trailer Store</title>
+</head>
+<body>
+    <h1>Trailer Store</h1>
+    <div id="trailers"></div>
+
+    <script>
+        async function fetchTrailers() {
+            const response = await fetch('/trailers');
+            const trailers = await response.json();
+            const trailerContainer = document.getElementById('trailers');
+            trailers.forEach(trailer => {
+                const trailerDiv = document.createElement('div');
+                trailerDiv.innerHTML = `
+                    <h2>${trailer.title}</h2>
+                    <p>${trailer.description}</p>
+                    <img src="${trailer.thumbnail_url}" alt="${trailer.title}" width="200">
+                    <p>Price: ${trailer.price} crypto</p>
+                    <button onclick="buyTrailer(${trailer.id}, ${trailer.price})">Buy</button>
+                    ${trailer.is_blocked ? '<p>Blocked</p>' : `<video width="400" controls>
+                        <source src="${trailer.video_url}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>`}
+                `;
+                trailerContainer.appendChild(trailerDiv);
+            });
+        }
+
+        async function buyTrailer(trailerId, price) {
+            const userId = prompt("Enter your user ID:");
+            const amount = parseFloat(prompt("Enter the amount:"));
+            if (amount >= price) {
+                const response = await fetch('/buy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        trailer_id: trailerId,
+                        amount: amount
+                    })
+                });
+                const result = await response.json();
+                alert(result.message);
+                location.reload();
+            } else {
+                alert("Insufficient amount!");
+            }
+        }
+
+        fetchTrailers();
+    </script>
+</body>
+</html>
