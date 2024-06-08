@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ThermalNFT Dashboard</title>
+  </head>
+  <body>
+    <h1>ThermalNFT Dashboard</h1>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Token ID</th>
+          <
