@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract ThermalNFT is ERC721URIStorage, Ownable {
+    uint256 public tokenCounter;
+    mapping(uint256 => uint256) public nftPoints;
+    mapping(uint256 => bool) public nftVisible;
+
+    constructor() ERC721("ThermalNFT", "TNFT") {
+        tokenCounter = 0;
+    }
+
+    function createNFT(string memory tokenURI, uint256 points) public onlyOwner returns (uint256) {
+        uint256 newItemId = tokenCounter;
+        _safeMint(msg.sender, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+        nftPoints[newItemId] = points;
+        nftVisible[newItemId] = points >= 1e24; // 1 pour 1000 de crypto (assuming 1 token = 1e18)
+        tokenCounter = tokenCounter + 1;
+        return newItemId;
+    }
+
+    function storePoints(uint256 tokenId, uint256 points) public onlyOwner {
+        require(_exists(tokenId), "ERC721Metadata: Nonexistent token");
+        nftPoints[tokenId] += points;
+        if (nftPoints[tokenId] >= 1e24) {
+            nftVisible[tokenId] = true;
+        }
+    }
+
+    function isVisible(uint256 tokenId) public view returns (bool) {
+        require(_exists(tokenId), "ERC721Metadata: Nonexistent token");
+        return nftVisible[tokenId];
+    }
+}
