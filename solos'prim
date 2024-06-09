@@ -1,0 +1,38 @@
+# Étape 1: Configuration de l'environnement de développement
+
+# Installer Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+
+# Installer Solana CLI
+sh -c "$(curl -sSfL https://release.solana.com/v1.7.11/install)"
+export PATH="/home/yourusername/.local/share/solana/install/active_release/bin:$PATH"
+
+# Configurer le portefeuille Solana
+solana-keygen new --outfile ~/my-solana-wallet.json
+solana config set --keypair ~/my-solana-wallet.json
+solana config set --url https://api.mainnet-beta.solana.com
+
+# Créer un compte de déploiement pour le programme
+solana airdrop 2
+
+# Étape 2: Créer un token SPL
+
+# Installer le CLI SPL Token
+cargo install spl-token-cli
+
+# Créer un nouveau token
+spl-token create-token
+
+# Créer un compte de distribution pour le token
+spl-token create-account <TOKEN_MINT_ADDRESS>
+
+# Étape 3: Déployer le token sur Solana
+
+# Initialiser le token (minting)
+spl-token mint <TOKEN_MINT_ADDRESS> <AMOUNT> <ACCOUNT_ADDRESS>
+
+# Distribuer le token aux utilisateurs
+spl-token transfer <TOKEN_MINT_ADDRESS> <AMOUNT> <RECIPIENT_ADDRESS> --fund-recipient
+
+echo "Token créé et distribué avec succès sur Solana!"
